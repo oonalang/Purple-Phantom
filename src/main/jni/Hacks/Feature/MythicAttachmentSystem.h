@@ -52,23 +52,23 @@ inline std::vector<void*> SnapshotWeaponPartAssets() {
 
 // Add these RVAs once.
 
-uintptr_t WeaponPartAssetAddress = 0xAF85628;
+uintptr_t WeaponPartAssetAddress = 0x85DC834;
 // Kept explicitly because the upstream implementation requires this collector RVA.
 // SkinHaxSystem owns the actual WeaponSkinConfig constructor hook so it is not hooked twice.
-uintptr_t WeaponSkinAddress = 0xAF8B4D4;
-uintptr_t AttachmentConfAddress = 0x6FE9168;
-uintptr_t AttachmentGroupNewCtorAddress = 0x8719E4C;
-uintptr_t AttachmentGroupNewItemCtorAddress = 0x871A270;
-uintptr_t AttachmentGroupNewGetColorIdAddress = 0x871A5D8;
-uintptr_t BRWeaponAttachItemDataCtorAddress = 0x99811C0;
-uintptr_t AttachItemCtorAddress = 0x8449500;
-uintptr_t AttachItemSetDataAddress = 0x8449544;
-uintptr_t AttachItemSetMythicSkinIdAddress = 0x844988C;
-uintptr_t AttachItemCopyEquippedAddress = 0x84498F0;
-uintptr_t AttachItemGetModelAttachIdAddress = 0x844A18C;
-uintptr_t AttachSkinDataCtorAddress = 0x75D7DE4;
-uintptr_t LoadoutAttachItemSetDataAddress = 0xB83F1C0;
-uintptr_t WeaponInitPartAddress = 0x517C4D0;
+uintptr_t WeaponSkinAddress = 0x85E3010;
+uintptr_t AttachmentConfAddress = 0x80E0580;
+uintptr_t AttachmentGroupNewCtorAddress = 0xA37BF64;
+uintptr_t AttachmentGroupNewItemCtorAddress = 0xA37C3A0;
+uintptr_t AttachmentGroupNewGetColorIdAddress = 0xA37C720;
+uintptr_t BRWeaponAttachItemDataCtorAddress = 0x941B648;
+uintptr_t AttachItemCtorAddress = 0xACA2378;
+uintptr_t AttachItemSetDataAddress = 0xACA23BC;
+uintptr_t AttachItemSetMythicSkinIdAddress = 0xACA2704;
+uintptr_t AttachItemCopyEquippedAddress = 0xACA2768;
+uintptr_t AttachItemGetModelAttachIdAddress = 0xACA3004;
+uintptr_t AttachSkinDataCtorAddress = 0xA37CABC;
+uintptr_t LoadoutAttachItemSetDataAddress = 0xC49E9C4;
+uintptr_t WeaponInitPartAddress = 0x550B9E4;
 
 
 // Add the original function pointers once.
@@ -1124,6 +1124,8 @@ inline bool InstallMythicAttachmentCollectorsFresh(uintptr_t unityBase) {
     if (!unityBase) return false;
 
     auto hookRva = [unityBase](uintptr_t rva, void* hook, void** orig) {
+        // rva == 0 marks a symbol this build does not expose.
+        if (!rva) return false;
         void* target = (void*)(unityBase + rva);
         if (!target || !Tools::IsPtrValid(target)) return false;
         Tools::Hook(target, hook, orig);
@@ -1147,6 +1149,8 @@ inline bool InstallMythicAttachmentRuntimeFresh(uintptr_t unityBase) {
     if (!unityBase) return false;
 
     auto hookRva = [unityBase](uintptr_t rva, void* hook, void** orig) {
+        // rva == 0 marks a symbol this build does not expose.
+        if (!rva) return false;
         void* target = (void*)(unityBase + rva);
         if (!target || !Tools::IsPtrValid(target)) return false;
         Tools::Hook(target, hook, orig);

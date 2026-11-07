@@ -19,22 +19,22 @@ namespace OblivionSkinHax {
 
 // Current-build RVAs. These are the current equivalents of the constructor/name/effect
 // paths used by the original Fields.h SkinHax loader.
-static constexpr uintptr_t kItemInventoryCtor = 0x6971D34;
-static constexpr uintptr_t kWeaponConfCtor = 0xAF7E7FC;
-static constexpr uintptr_t kWeaponExtraCtor = 0xAF80080;
-static constexpr uintptr_t kWeaponFireCtor = 0xAF81990;
-static constexpr uintptr_t kWeaponAssetCtor = 0xAF7A080;
-static constexpr uintptr_t kMythicArmorCtor = 0x5C90E84;
-static constexpr uintptr_t kMythicSightCtor = 0x90DDEEC;
-static constexpr uintptr_t kKillEffectCtor = 0x90C54CC;
-static constexpr uintptr_t kWeaponSkinCtor = 0xAF8B4D4;
-static constexpr uintptr_t kItemResourceCtor = 0x6985AB8;
-static constexpr uintptr_t kWeaponNameGetter = 0xAF7FDC8;
+static constexpr uintptr_t kItemInventoryCtor = 0x73BAC94;
+static constexpr uintptr_t kWeaponConfCtor = 0x85D5120;
+static constexpr uintptr_t kWeaponExtraCtor = 0x85D6A68;
+static constexpr uintptr_t kWeaponFireCtor = 0x85D8664;
+static constexpr uintptr_t kWeaponAssetCtor = 0x85D0488;   // Config.WeaponAssetGroupConfConfig::.ctor
+static constexpr uintptr_t kMythicArmorCtor = 0x8163400;   // Config.MythicArmorConfig::.ctor
+static constexpr uintptr_t kMythicSightCtor = 0x8163A08;
+static constexpr uintptr_t kKillEffectCtor = 0x8148794;
+static constexpr uintptr_t kWeaponSkinCtor = 0x85E3010;
+static constexpr uintptr_t kItemResourceCtor = 0x8145590;
+static constexpr uintptr_t kWeaponNameGetter = 0x85D6744;  // Config.WeaponConfConfig::get_Name
 
-static constexpr uintptr_t kCurrentKillEffect = 0xA61AC70;
-static constexpr uintptr_t kCurrentFireEffect = 0xA61AAA8;
-static constexpr uintptr_t kCurrentBulletTrack = 0xA61AB8C;
-static constexpr uintptr_t kCurrentBroadcast = 0xA61ADFC;
+static constexpr uintptr_t kCurrentKillEffect = 0x982A098;
+static constexpr uintptr_t kCurrentFireEffect = 0x9829ED0;
+static constexpr uintptr_t kCurrentBulletTrack = 0x9829FB4;
+static constexpr uintptr_t kCurrentBroadcast = 0x982A224;
 
 using Constructor = void (*)(void*);
 using EffectGetter = int (*)(void*);
@@ -588,6 +588,8 @@ static int HookBulletEffect(void* p) { return ResolveEffect(p, gOrigBulletTrack,
 static int HookBroadcast(void* p) { return ResolveEffect(p, gOrigBroadcast, gActiveBroadcastEffects); }
 
 static bool InstallOne(uintptr_t base, uintptr_t rva, void* hook, void** orig) {
+    // rva == 0 marks a symbol this build does not expose.
+    if (!rva) return false;
     void* target = reinterpret_cast<void*>(base + rva);
     if (!Valid(target)) return false;
     DobbyHook(target, hook, orig);

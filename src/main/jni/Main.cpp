@@ -1687,120 +1687,133 @@ void Init_Thread()
 
 
 	//EXTREME QUALITY
-	patchOffset("libunity.so", 0x8835A60, "00 00 80 D2 C0 03 5F D6", checkboxStates["extreme"]);
-	patchOffset("libunity.so", 0x9FE5254, "20 00 80 D2 C0 03 5F D6", checkboxStates["extreme"]);
+		// 1.6.57 wrote at StopShowEffect+0xC; the method is void, so skipping its body
+	// from the entry is the same observable behaviour.
+	patchOffset("libunity.so", 0x758F0B4, "00 00 80 D2 C0 03 5F D6", checkboxStates["extreme"]); // BRVehicleShowEffectBase::StopShowEffect
+	patchOffset("libunity.so", 0xAFB1D90, "20 00 80 D2 C0 03 5F D6", checkboxStates["extreme"]);
 	
 	//ANTI FPS DROP
-	patchOffset("libunity.so", 0x9FF1E64,"20 00 80 D2 C0 03 5F D6", checkboxStates["anti"]);
-	patchOffset("libunity.so", 0x8847A40,"20 00 80 D2 C0 03 5F D6", checkboxStates["anti"]);
+	patchOffset("libunity.so", 0xAFBF4DC,"20 00 80 D2 C0 03 5F D6", checkboxStates["anti"]);
+		// [1.6.59] was <GetPerk>c__Iterator0::MoveNext+0x78C - an inline write into a state
+	// machine. No safe entry-level equivalent; needs a manual offset. Disabled.
 	
-	patchOffset("libunity.so", 0x91C3010, "1F 20 03 D5 E0 03 13 AA", checkboxStates["wallhack"]);
+		// [1.6.59] was <PrintDialog>c__Iterator0::MoveNext+0x1A0 - not a visibility path at
+	// all. ESP is served by the entity hooks; this inline write is dropped.
 	
 	//UNLI AMMO
-	patchOffset("libunity.so", 0x5984C48, "00 00 80 52 C0 03 5F D6", checkboxStates["AMMO"]);
+	// Target is GameInfo.IsNoCostAmmo (verified name) but the shipped payload was
+	// mov w0,#0 = return false, i.e. the vanilla path. Forcing true is the only value
+	// that matches the toggle, so the payload is corrected here (was 00 00 80 52).
+	patchOffset("libunity.so", 0x6AE86E0, "20 00 80 D2 C0 03 5F D6", checkboxStates["AMMO"]);
 	
 	//BR TAGS
-	patchOffset("libunity.so", 0x5CD8228, "20 00 80 D2 C0 03 5F D6", checkboxStates["BRTAGS"]);
+		// [1.6.59] was OpenWorldDroppedPickUpUtil::.cctor+0x38. Returning from the middle of a
+	// static ctor leaves the statics half-initialised; disabling is safer than guessing.
 	
 	//HIGH END PERFORMANCE
-	patchOffset("libunity.so", 0x9FDE9C8, "20 00 80 D2 C0 03 5F D6", checkboxStates["highend"]);
-	patchOffset("libunity.so", 0x882FB5C, "20 00 80 D2 C0 03 5F D6", checkboxStates["highend"]);
-	patchOffset("libunity.so", 0x9FDE9D8, "20 00 80 D2 C0 03 5F D6", checkboxStates["highend"]);
-	patchOffset("libunity.so", 0x9FDFC58, "20 00 80 D2 C0 03 5F D6", checkboxStates["highend"]);
-	patchOffset("libunity.so", 0x9FDFDCC, "20 00 80 D2 C0 03 5F D6", checkboxStates["highend"]);
-	patchOffset("libunity.so", 0x9FDFDD4, "20 00 80 D2 C0 03 5F D6", checkboxStates["highend"]); 
-	patchOffset("libunity.so", 0x9FE18E8, "20 00 80 D2 C0 03 5F D6", checkboxStates["highend"]);
-	patchOffset("libunity.so", 0x9FDFBBC, "20 00 80 D2 C0 03 5F D6", checkboxStates["highend"]);
-	patchOffset("libunity.so", 0x9FE3C80, "20 00 80 D2 C0 03 5F D6", checkboxStates["highend"]);
-	patchOffset("libunity.so", 0x9FE3EC4, "20 00 80 D2 C0 03 5F D6", checkboxStates["highend"]);
-	patchOffset("libunity.so", 0x9FE6864, "20 00 80 D2 C0 03 5F D6", checkboxStates["highend"]);
-	patchOffset("libunity.so", 0x9FDFB20, "20 00 80 D2 C0 03 5F D6", checkboxStates["highend"]);
-	patchOffset("libunity.so", 0x9FE8BE4, "20 00 80 D2 C0 03 5F D6", checkboxStates["highend"]);
-	patchOffset("libunity.so", 0x8839D08, "20 00 80 D2 C0 03 5F D6", checkboxStates["highend"]);
-	patchOffset("libunity.so", 0x883D084, "20 00 80 D2 C0 03 5F D6", checkboxStates["highend"]);
-	patchOffset("libunity.so", 0x9FE8298, "20 00 80 D2 C0 03 5F D6", checkboxStates["highend"]);
-	DobbyHook((void*)getAbsoluteAddress("libunity.so", 0x9FE01CC), (void*)GetFrameRateValue, (void**)&orig_GetFrameRateValue);
-    DobbyHook((void*)getAbsoluteAddress("libunity.so", 0x9FDFB38), (void*)GetUltraFrameRateFinalFPS, (void**)&orig_GetUltraFrameRateFinalFPS);
-    DobbyHook((void*)getAbsoluteAddress("libunity.so", 0x9FDF8E0), (void*)hooked_Fpslevel, (void**)&original_Fpslevel);
-    DobbyHook((void*)getAbsoluteAddress("libunity.so", 0x9FDF8E0), (void*)hooked_Fpslevel1, (void**)&original_Fpslevel1);
-    DobbyHook((void*)getAbsoluteAddress("libunity.so", 0x9FE3FB4), (void*)hooked_Extremequality, (void**)&original_Extremequality);
-    DobbyHook((void*)getAbsoluteAddress("libunity.so", 0x9FDEE28), (void*)hooked_SetUltraFrameRateDeviceInfo, (void**)&orig_SetUltraFrameRateDeviceInfo);
+	patchOffset("libunity.so", 0xAFAAEE8, "20 00 80 D2 C0 03 5F D6", checkboxStates["highend"]);
+	patchOffset("libunity.so", 0x75890C0, "20 00 80 D2 C0 03 5F D6", checkboxStates["highend"]);
+	patchOffset("libunity.so", 0xAFAAEF8, "20 00 80 D2 C0 03 5F D6", checkboxStates["highend"]);
+	patchOffset("libunity.so", 0xAFAC1C4, "20 00 80 D2 C0 03 5F D6", checkboxStates["highend"]);
+	patchOffset("libunity.so", 0xAFAC338, "20 00 80 D2 C0 03 5F D6", checkboxStates["highend"]);
+	patchOffset("libunity.so", 0xAFAC340, "20 00 80 D2 C0 03 5F D6", checkboxStates["highend"]); 
+	patchOffset("libunity.so", 0xAFAE074, "20 00 80 D2 C0 03 5F D6", checkboxStates["highend"]);
+	patchOffset("libunity.so", 0xAFAC128, "20 00 80 D2 C0 03 5F D6", checkboxStates["highend"]);
+	patchOffset("libunity.so", 0xAFB067C, "20 00 80 D2 C0 03 5F D6", checkboxStates["highend"]);
+	patchOffset("libunity.so", 0xAFB09F4, "20 00 80 D2 C0 03 5F D6", checkboxStates["highend"]);
+	patchOffset("libunity.so", 0xAFB33A0, "20 00 80 D2 C0 03 5F D6", checkboxStates["highend"]);
+	patchOffset("libunity.so", 0xAFAC08C, "20 00 80 D2 C0 03 5F D6", checkboxStates["highend"]);
+	patchOffset("libunity.so", 0xAFB5744, "20 00 80 D2 C0 03 5F D6", checkboxStates["highend"]);
+		// [1.6.59] was BrWeaponModsMainController::OnEasyListItemClick+0x58C (inline, inside a
+	// UI click handler). Disabled rather than redirected.
+		// [1.6.59] was BTCrossHairPlayerInfoHUD::AimingDirectTarget+0x148. Forcing the return
+	// value at entry would skip filling the ref AttackableTarget the caller reads. Disabled.
+	patchOffset("libunity.so", 0xAFB4DF8, "20 00 80 D2 C0 03 5F D6", checkboxStates["highend"]);
+	DobbyHook((void*)getAbsoluteAddress("libunity.so", 0xAFAC73C), (void*)GetFrameRateValue, (void**)&orig_GetFrameRateValue);
+    DobbyHook((void*)getAbsoluteAddress("libunity.so", 0xAFAC0A4), (void*)GetUltraFrameRateFinalFPS, (void**)&orig_GetUltraFrameRateFinalFPS);
+    DobbyHook((void*)getAbsoluteAddress("libunity.so", 0xAFABE4C), (void*)hooked_Fpslevel, (void**)&original_Fpslevel);
+    DobbyHook((void*)getAbsoluteAddress("libunity.so", 0xAFABE4C), (void*)hooked_Fpslevel1, (void**)&original_Fpslevel1);
+    DobbyHook((void*)getAbsoluteAddress("libunity.so", 0xAFB0AE4), (void*)hooked_Extremequality, (void**)&original_Extremequality);
+    DobbyHook((void*)getAbsoluteAddress("libunity.so", 0xAFAB394), (void*)hooked_SetUltraFrameRateDeviceInfo, (void**)&orig_SetUltraFrameRateDeviceInfo);
 	
 	//PATCHES SHITS 
-    Patches.autosnipe = MemoryPatch::createWithHex("libunity.so",0x6A965B0,"20 00 80 D2 C0 03 5F D6"); // public bool get_IsSingleShot()
-    Patches.kinetic = MemoryPatch::createWithHex("libunity.so",0x51B3D64,"20 00 80 D2 C0 03 5F D6"); // public bool get_IsKineticArmor()
+    Patches.autosnipe = MemoryPatch::createWithHex("libunity.so",0x99E35E0,"20 00 80 D2 C0 03 5F D6"); // public bool get_IsSingleShot()
+    Patches.kinetic = MemoryPatch::createWithHex("libunity.so",0x5385AC8,"20 00 80 D2 C0 03 5F D6"); // public bool get_IsKineticArmor()
     
     // [Movement]
-    Patches.jetj = MemoryPatch::createWithHex("libunity.so",0x907D498,"20 00 80 D2 C0 03 5F D6"); // public bool CanJettingByStartJumpTime()
-    Patches.jets = MemoryPatch::createWithHex("libunity.so",0x9086B5C,"20 00 80 D2 C0 03 5F D6");
-    Patches.NoSlideFatigue = MemoryPatch::createWithHex("libunity.so", 0x8BF722C, "00 00 80 D2 C0 03 5F D6");
-    Patches.NoSlideFatiguePve = MemoryPatch::createWithHex("libunity.so", 0x651274C, "00 00 80 D2 C0 03 5F D6"); // public bool CanBoostSlide()
+    Patches.jetj = MemoryPatch::createWithHex("libunity.so",0x98A85E8,"20 00 80 D2 C0 03 5F D6"); // public bool CanJettingByStartJumpTime()
+    Patches.jets = MemoryPatch::createWithHex("libunity.so",0x98B3308,"20 00 80 D2 C0 03 5F D6");
+    Patches.NoSlideFatigue = MemoryPatch::createWithHex("libunity.so", 0x7C69764, "00 00 80 D2 C0 03 5F D6");
+    Patches.NoSlideFatiguePve = MemoryPatch::createWithHex("libunity.so", 0x692DF1C, "00 00 80 D2 C0 03 5F D6"); // public bool CanBoostSlide()
     
     // [Quality of Life]
-    Patches.revive = MemoryPatch::createWithHex("libunity.so",0x9681C20,"00 00 80 D2 C0 03 5F D6"); // public bool get_reviveFromDeath()
-    Patches.revive = MemoryPatch::createWithHex("libunity.so",0x9687BEC,"20 00 80 D2 C0 03 5F D6"); // public float get_ReviveTime()
-    Patches.chute = MemoryPatch::createWithHex("libunity.so",0x5DC662C,"00 00 80 D2 C0 03 5F D6"); // public void OpenParachute(bool isAuto)
-    Patches.wing = MemoryPatch::createWithHex("libunity.so",0x54A12F4,"00 00 80 D2 C0 03 5F D6"); // public bool IsAutoOpenWingsuit()
-    Patches.rpd = MemoryPatch::createWithHex("libunity.so",0xC14B314, "00 2C 40 BC C0 03 5F D6"); // public float get_AddHotTime()
-	Patches.red = MemoryPatch::createWithHex("libunity.so",0x9677554,"20 00 80 D2 C0 03 5F D6");//public bool get_IsInEM3Eye()
-    Patches.cost = MemoryPatch::createWithHex("libunity.so",0x6AAF660,"00 00 80 D2 C0 03 5F D6"); // public int get_ShotCost()
-    Patches.fire = MemoryPatch::createWithHex("libunity.so",0xC148ED0,"00 2C 40 BC C0 03 5F D6"); // public float get_FireBoltTime()
-    Patches.fire = MemoryPatch::createWithHex("libunity.so",0xC1478C0,"00 2C 40 BC C0 03 5F D6"); // public virtual float get_FireInterval()
-    Patches.outline = MemoryPatch::createWithHex("libunity.so",0x72cb6b4,"20 00 80 D2 C0 03 5F D6");//private bool IsEffectActive()
-    Patches.outline = MemoryPatch::createWithHex("libunity.so",0x72ca8b0,"20 00 80 D2 C0 03 5F D6");//private bool IsEffectActive()
-    Patches.range = MemoryPatch::createWithHex("libunity.so",0x50EE1F8,"20 00 80 D2 C0 03 5F D6"); // public float get_WeaponRangeHOOKLIBZ
+    Patches.revive = MemoryPatch::createWithHex("libunity.so",0xA0C0714,"00 00 80 D2 C0 03 5F D6"); // public bool get_reviveFromDeath()
+    Patches.revive = MemoryPatch::createWithHex("libunity.so",0xA0C6944,"20 00 80 D2 C0 03 5F D6"); // public float get_ReviveTime()
+    Patches.chute = MemoryPatch::createWithHex("libunity.so",0x5A88C48,"00 00 80 D2 C0 03 5F D6"); // public void OpenParachute(bool isAuto)
+    Patches.wing = MemoryPatch::createWithHex("libunity.so",0x557C6E0,"00 00 80 D2 C0 03 5F D6"); // public bool IsAutoOpenWingsuit()
+    Patches.rpd = MemoryPatch::createWithHex("libunity.so",0xC2B7A30, "00 2C 40 BC C0 03 5F D6"); // public float get_AddHotTime()
+	Patches.red = MemoryPatch::createWithHex("libunity.so",0xA0B6018,"20 00 80 D2 C0 03 5F D6");//public bool get_IsInEM3Eye()
+    Patches.cost = MemoryPatch::createWithHex("libunity.so",0x99FDDB8,"00 00 80 D2 C0 03 5F D6"); // public int get_ShotCost()
+    Patches.fire = MemoryPatch::createWithHex("libunity.so",0xC2B54F0,"00 2C 40 BC C0 03 5F D6"); // public float get_FireBoltTime()
+    Patches.fire = MemoryPatch::createWithHex("libunity.so",0xC2B3E18,"00 2C 40 BC C0 03 5F D6"); // public virtual float get_FireInterval()
+	// 1.6.57's outline pair pointed inside TEDAct.TEDActMainUIController::Init and
+	// TEDAct.TEDActAwardFGCellView::SetData (+0x1E4/+0x5C), neither is IsEffectActive.
+	// Intent (the old comment) is the see-front outline effect; only one field exists,
+	// so the duplicate assignment is gone and the survivor is the real getter.
+	Patches.outline = MemoryPatch::createWithHex("libunity.so",0xB18EE4C,"20 00 80 D2 C0 03 5F D6");// EffectInstance_SeeFront::IsEffectActive
+    Patches.range = MemoryPatch::createWithHex("libunity.so",0x5476A10,"20 00 80 D2 C0 03 5F D6"); // public float get_WeaponRangeHOOKLIBZ
 	
 	
    // HOOKLIBZ
-    HOOK_LIB("libunity.so", "0x5947970", CheckTargetIsValid_DyingInAzurGameMode_Hook, orig_CheckTargetIsValid_DyingInAzurGameMode);
-    HOOK_LIB("libunity.so", "0x5947A24", CheckTargetIsValid_PhysState_Hook, orig_CheckTargetIsValid_PhysState);
-    HOOK_LIB("libunity.so", "0x5947C18", CheckTargetIsValid_ManualParameter_Hook, orig_CheckTargetIsValid_ManualParameter);
-    HOOK_LIB("libunity.so", "0x5947F1C", CheckTargetIsValid_Ult_Hook, orig_CheckTargetIsValid_Ult);
-    HOOK_LIB("libunity.so", "0x5221D00", hook_GetMaxJumpHeight, orig_GetMaxJumpHeight);
-    HOOK_LIB("libunity.so", "0x5195B34", hooked_Init, original_Init);
-    HOOK_LIB("libunity.so", "0x904DD18", NeedDelayProcess, orig_NeedDelayProcess);
-    HOOK_LIB("libunity.so", "0x519676C", ProcessForDelay, orig_ProcessForDelay);
+    HOOK_LIB("libunity.so", "0x6AA932C", CheckTargetIsValid_DyingInAzurGameMode_Hook, orig_CheckTargetIsValid_DyingInAzurGameMode);
+    HOOK_LIB("libunity.so", "0x6AA93E0", CheckTargetIsValid_PhysState_Hook, orig_CheckTargetIsValid_PhysState);
+    HOOK_LIB("libunity.so", "0x6AA9634", CheckTargetIsValid_ManualParameter_Hook, orig_CheckTargetIsValid_ManualParameter);
+    HOOK_LIB("libunity.so", "0x6AA9938", CheckTargetIsValid_Ult_Hook, orig_CheckTargetIsValid_Ult);
+    HOOK_LIB("libunity.so", "0x53F7E7C", hook_GetMaxJumpHeight, orig_GetMaxJumpHeight);
+    HOOK_LIB("libunity.so", "0x53659B8", hooked_Init, original_Init);
+    HOOK_LIB("libunity.so", "0x5366558", NeedDelayProcess, orig_NeedDelayProcess);
+    HOOK_LIB("libunity.so", "0x53665EC", ProcessForDelay, orig_ProcessForDelay);
 
-    HOOK_LIB("libunity.so", "0x5DE981C", get_AccelerationForwardSpeedUp, orig_get_AccelerationForwardSpeedUp);
-    HOOK_LIB("libunity.so", "0x5DE9880", get_MaxVelocityForwardSpeedUp, orig_get_MaxVelocityForwardSpeedUp);
-    HOOK_LIB("libunity.so", "0x5985F8C", getAdvanceUAV, orig_AdvanceUAV);
-    HOOK_LIB("libunity.so", "0xC9BAFF8", GetScaleRecoil, orig_GetScaleRecoil);
-    HOOK_LIB("libunity.so", "0xC1514C0", SingleLineCheckPhysics, orig_SingleLineCheckPhysics);
-    HOOK_LIB("libunity.so", "0x50ED8D4", get_EquipTime, orig_get_EquipTime);
-    HOOK_LIB("libunity.so", "0x50EB944", get_AimingTime, orig_get_AimingTime);
-    HOOK_LIB("libunity.so", "0x666FD90", GetAssitAimSpeed, orig_GetAssitAimSpeed);
-    HOOK_LIB("libunity.so", "0xC14943C", get_ChangeClipTime, orig_get_ChangeClipTime);
-	HOOK_LIB("libunity.so", "0x649048C", InitMaxPickUpDistance, orig_InitMaxPickUpDistance); 
-	HOOK_LIB("libunity.so", "0x8A5B8C8", get_GulagTicketCount, orig_GetGulagTicketCount);
-	HOOK_LIB("libunity.so", "0x31877E0", GetPickUpTime, orig_GetPickUpTime); 
-	//AUTO ON
-    HOOK_LIB_NO_ORIG("libunity.so", "0x91BD4B4", IsTutorialEnabled); //public static bool IsTutorialEnabled()
-	HOOK_LIB_NO_ORIG("libunity.so", "0x6BBD97C", IsEnableVulkan); //public bool get_EnableVulkan() { };
-	HOOK_LIB_NO_ORIG("libunity.so", "0x4E75F58", IsEmulator); //public bool IsEmulator() { }; //RVA:
+    HOOK_LIB("libunity.so", "0x5AB2784", get_AccelerationForwardSpeedUp, orig_get_AccelerationForwardSpeedUp);
+    HOOK_LIB("libunity.so", "0x5AB27E8", get_MaxVelocityForwardSpeedUp, orig_get_MaxVelocityForwardSpeedUp);
+    HOOK_LIB("libunity.so", "0x6AE9A70", getAdvanceUAV, orig_AdvanceUAV);
+    HOOK_LIB("libunity.so", "0xD535A6C", GetScaleRecoil, orig_GetScaleRecoil);
+    HOOK_LIB("libunity.so", "0xC2BE0C8", SingleLineCheckPhysics, orig_SingleLineCheckPhysics);
+    HOOK_LIB("libunity.so", "0x54760F0", get_EquipTime, orig_get_EquipTime);
+    HOOK_LIB("libunity.so", "0x5474160", get_AimingTime, orig_get_AimingTime);
+    HOOK_LIB("libunity.so", "0x66BD7F0", GetAssitAimSpeed, orig_GetAssitAimSpeed);
+    HOOK_LIB("libunity.so", "0xC2B5B58", get_ChangeClipTime, orig_get_ChangeClipTime);
+	HOOK_LIB("libunity.so", "0x8AE880C", InitMaxPickUpDistance, orig_InitMaxPickUpDistance); 
+	HOOK_LIB("libunity.so", "0xA5D65D8", get_GulagTicketCount, orig_GetGulagTicketCount);
+	HOOK_LIB("libunity.so", "0x3324704", GetPickUpTime, orig_GetPickUpTime); 
+	// AUTO ON: the three stale hooks that used to sit here targeted the wrong
+	// functions in 1.6.57 as well (UI/iterator bodies, not the intended
+	// TutorialManager/SystemSetting/EmulatorManager members). The correct
+	// equivalents live in the [System] block below.
 	
-	HOOK_LIB("libunity.so", "0x901F988", IsUnlocked, orig_IsUnlocked); // IsUnlocked
+	HOOK_LIB("libunity.so", "0x97CC1D0", IsUnlocked, orig_IsUnlocked); // IsUnlocked
 
     // [System]
-    HOOK_LIB_NO_ORIG("libunity.so", "0x9DE0E58", IsTutorialEnabled);
-    HOOK_LIB_NO_ORIG("libunity.so", "0x9FEC8AC", IsEnableVulkan);
-    HOOK_LIB_NO_ORIG("libunity.so", "0xAE24334", IsEmulator);
+    HOOK_LIB_NO_ORIG("libunity.so", "0xCCC3240", IsTutorialEnabled);
+    HOOK_LIB_NO_ORIG("libunity.so", "0xAFB9F44", IsEnableVulkan);
+    HOOK_LIB_NO_ORIG("libunity.so", "0x7FCFBE8", IsEmulator);
 	
     // [Weapon]
-    HOOK_LIB("libunity.so", "0xC9B6F90", WeaponFireComponent_Instant_CreateBulletLine, oWeaponFireComponent_Instant_CreateBulletLine);
-    HOOK_LIB("libunity.so", "0xC9C33A4", CreateBulletProjectile, oCreateBulletProjectile);
+    HOOK_LIB("libunity.so", "0xD5319D4", WeaponFireComponent_Instant_CreateBulletLine, oWeaponFireComponent_Instant_CreateBulletLine);
+    HOOK_LIB("libunity.so", "0xD53DA64", CreateBulletProjectile, oCreateBulletProjectile);
     
     // [Movement]
-    HOOK_LIB("libunity.so", "0x8BF62D4", h_GetSuperSlideRate, o_GetSuperSlideRate);
-    HOOK_LIB("libunity.so", "0x9BDBBA8", h_get_SlideTackleAcclerationSpeed, o_get_SlideTackleAcclerationSpeed);
-    HOOK_LIB("libunity.so", "0x51D3AF4", h_PawnGetMaxSpeed, o_PawnGetMaxSpeed);
-    HOOK_LIB("libunity.so", "0x8BF7E48", h_TickLocalPlayer, o_TickLocalPlayer);
-    HOOK_LIB("libunity.so", "0x8BF71F0", h_get_SlideTackleSpeed, o_get_SlideTackleSpeed);
-    HOOK_LIB("libunity.so", "0xB15D104", SameTeamFromPawn, orig_SameTeamFromPawn);
-    HOOK_LIB("libunity.so", "0xC9B9618", GetRealSpreadModifier, orig_GetRealSpreadModifier);
-    HOOK_LIB("libunity.so", "0x522860C", hooked_get_m_PhysSkisMaxSpeed, get_m_PhysSkisMaxSpeed);
-    HOOK_LIB("libunity.so", "0x51D2EB8", hooked_CalcFinalMoveScale, original_CalcFinalMoveScale);
+    HOOK_LIB("libunity.so", "0x7C687C8", h_GetSuperSlideRate, o_GetSuperSlideRate);
+    HOOK_LIB("libunity.so", "0x54F756C", h_get_SlideTackleAcclerationSpeed, o_get_SlideTackleAcclerationSpeed);
+    HOOK_LIB("libunity.so", "0x53A5E48", h_PawnGetMaxSpeed, o_PawnGetMaxSpeed);
+    HOOK_LIB("libunity.so", "0x7C6A494", h_TickLocalPlayer, o_TickLocalPlayer);
+    HOOK_LIB("libunity.so", "0x7C696E8", h_get_SlideTackleSpeed, o_get_SlideTackleSpeed);
+    HOOK_LIB("libunity.so", "0xC3FD700", SameTeamFromPawn, orig_SameTeamFromPawn);
+    HOOK_LIB("libunity.so", "0xD53408C", GetRealSpreadModifier, orig_GetRealSpreadModifier);
+    HOOK_LIB("libunity.so", "0x53FE7FC", hooked_get_m_PhysSkisMaxSpeed, get_m_PhysSkisMaxSpeed);
+    HOOK_LIB("libunity.so", "0x53A5280", hooked_CalcFinalMoveScale, original_CalcFinalMoveScale);
 	
-    DobbyHook((void*) getAbsoluteAddress("libunity.so", 0x9FDEE28), (void*)&hooked_SetUltraFrameRateDeviceInfo, (void**)&orig_SetUltraFrameRateDeviceInfo);
+    DobbyHook((void*) getAbsoluteAddress("libunity.so", 0xAFAB394), (void*)&hooked_SetUltraFrameRateDeviceInfo, (void**)&orig_SetUltraFrameRateDeviceInfo);
     
 	
     auto swapBuffers = ((uintptr_t) DobbySymbolResolver(OBFUSCATE("libunity.so"), OBFUSCATE("eglSwapBuffers")));
